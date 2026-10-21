@@ -1,0 +1,47 @@
+# Checks bucket/vericto.json, which the vericto/vericto-cli release writes here
+# (.github/workflows/scoop-publish.yml there): valid JSON, the fields Scoop
+# needs, and both Windows archives (64bit, arm64) pinned by SHA-256 to that
+# version's GitHub release. Passes while the bucket is still empty.
+# Runner: always GitHub-hosted. This repository is public and must never be
+# served by the self-hosted vericto-spot runners.
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: validate manifest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check bucket/vericto.json
+        run: |
+          set -euo pipefail
+          m=bucket/vericto.json
+          if [ ! -f "$m" ]; then
+            echo "::notice::$m does not exist yet; the first vericto-cli release from 1.11.0 publishes it."
+            exit 0
+          fi
+          jq -e . "$m" > /dev/null
+          v=$(jq -er '.version' "$m")
+          [[ "$v" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::version '$v' is not X.Y.Z"; exit 1; }
+          jq -e '.license and .homepage and .bin' "$m" > /dev/null || { echo "::error::license, homepage or bin missing"; exit 1; }
+          for arch in 64bit arm64; do
+            url=$(jq -er --arg a "$arch" '.architecture[$a].url' "$m")
+            hash=$(jq -er --arg a "$arch" '.architecture[$a].hash' "$m")
+            case "$url" in
+              "https://github.com/vericto/vericto-cli/releases/download/v${v}/"*.zip) ;;
+              *) echo "::error::$arch url is not a v${v} vericto-cli release zip: $url"; exit 1 ;;
+            esac
+            [[ "${hash#sha256:}" =~ ^[0-9a-f]{64}$ ]] || { echo "::error::$arch hash is not a SHA-256"; exit 1; }
+          done
+          echo "bucket/vericto.json: vericto $v, 64bit and arm64 pinned"
