@@ -16,4 +16,4 @@
 
 - [ ] `bucket/vericto.json` is not edited by hand
 - [ ] Actions stay pinned to full commit SHAs with a version comment
-- [ ] CI is green (`validate manifest`, `gitleaks`)
+- [ ] CI is green (`validate manifest`, `scoop install (x64)`, `scoop install (arm64)`, `gitleaks`)

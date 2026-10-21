@@ -1,0 +1,93 @@
+# Installs the bucket's manifest with Scoop on both Windows architectures the
+# Vericto CLI ships for, then runs the installed binary: the Scoop counterpart
+# of homebrew-tap's tests.yml. validate.yml checks the manifest's fields; this
+# checks that `scoop install vericto/vericto` actually works.
+#
+# bucket/vericto.json is written by the vericto/vericto-cli release workflow
+# (.github/workflows/scoop-publish.yml there). Until the first one lands, the
+# job passes with a notice.
+#
+# Runners: always GitHub-hosted. This repository is public and must never be
+# served by the self-hosted vericto-spot runners.
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # ScoopInstaller/Install at a fixed commit, checked by SHA-256 before it runs.
+  # Bump both together.
+  SCOOP_INSTALL_COMMIT: 1e2f334083d609986d8c8bc9e31ae8e87c39fab4
+  SCOOP_INSTALL_SHA256: 94f983b190438311e006b957db7c8422709e0ba62a6c2ac04e278164108f2512
+
+jobs:
+  install:
+    name: scoop install (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: windows-latest
+          - arch: arm64
+            runner: windows-11-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check for the manifest
+        id: manifest
+        shell: pwsh
+        run: |
+          if (Test-Path bucket/vericto.json) {
+            "present=true" >> $env:GITHUB_OUTPUT
+          } else {
+            "present=false" >> $env:GITHUB_OUTPUT
+            Write-Output "::notice::bucket/vericto.json does not exist yet; the first vericto-cli release from 1.11.0 publishes it."
+          }
+
+      - name: Install Scoop
+        if: steps.manifest.outputs.present == 'true'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $url = "https://raw.githubusercontent.com/ScoopInstaller/Install/$env:SCOOP_INSTALL_COMMIT/install.ps1"
+          $script = Join-Path $env:RUNNER_TEMP 'install-scoop.ps1'
+          Invoke-WebRequest -Uri $url -OutFile $script
+          $got = (Get-FileHash -Algorithm SHA256 $script).Hash.ToLowerInvariant()
+          if ($got -ne $env:SCOOP_INSTALL_SHA256) { throw "install.ps1 SHA-256 is $got, expected $env:SCOOP_INSTALL_SHA256" }
+          # GitHub-hosted runners run as an administrator; Scoop refuses that
+          # without -RunAsAdmin.
+          & $script -RunAsAdmin
+          "$env:USERPROFILE\scoop\shims" >> $env:GITHUB_PATH
+
+      - name: Install vericto from this checkout
+        if: steps.manifest.outputs.present == 'true'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = (Get-Content bucket/vericto.json -Raw | ConvertFrom-Json).version
+          scoop bucket add vericto-ci $PWD
+          scoop install vericto-ci/vericto
+          if ($LASTEXITCODE -ne 0) { throw "scoop install failed ($LASTEXITCODE)" }
+          $got = vericto --version
+          if ($got -ne "vericto $version") { throw "installed '$got', expected 'vericto $version'" }
+          # The Windows build embeds the engine: a DELETE without WHERE is
+          # blocked offline (exit 1), with no account or network.
+          'DELETE FROM users;' | vericto check --offline --quiet -
+          if ($LASTEXITCODE -ne 1) { throw "check --offline exited $LASTEXITCODE, expected 1" }
+          $global:LASTEXITCODE = 0
+          scoop uninstall vericto
+          if ($LASTEXITCODE -ne 0) { throw "scoop uninstall failed ($LASTEXITCODE)" }
