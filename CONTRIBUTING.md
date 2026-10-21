@@ -13,8 +13,9 @@ respectful, constructive, and technically precise.
 ## What belongs here
 
 - **The bucket's CI**: `.github/workflows/validate.yml`, which checks that
-  `bucket/vericto.json` is a valid manifest pinned to the CLI's release, and
-  `gitleaks.yml`.
+  `bucket/vericto.json` is a valid manifest pinned to the CLI's release,
+  `test.yml`, which installs it with Scoop on Windows x64 and arm64 and runs the
+  binary, and `gitleaks.yml`.
 - **Documentation**: `README.md`.
 
 What does not:
@@ -45,7 +46,8 @@ scoop bucket rm vericto-local
 
 ## Pull requests
 
-- Required checks: `validate manifest` and `gitleaks`.
+- Required checks: `validate manifest`, `scoop install (x64)`, `scoop install (arm64)`
+  and `gitleaks`.
 - Keep actions pinned to full commit SHAs with a version comment, as in
   vericto-cli; Dependabot keeps them current.
 - Write commit messages, comments and pull request descriptions in English. The
