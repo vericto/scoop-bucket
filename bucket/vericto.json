@@ -1,5 +1,5 @@
 {
-    "version": "1.12.1",
+    "version": "1.13.0",
     "description": "Validate SQL against your Vericto workspace's security rules before it runs",
     "homepage": "https://vericto.com",
     "license": {
@@ -8,12 +8,12 @@
     },
     "architecture": {
         "64bit": {
-            "url": "https://github.com/vericto/vericto-cli/releases/download/v1.12.1/vericto-cli-x86_64-pc-windows-msvc.zip",
-            "hash": "09c27ee7ebd72fd13119926e1d6b7cf47c8f9d8ec170230ce67e720089acd96e"
+            "url": "https://github.com/vericto/vericto-cli/releases/download/v1.13.0/vericto-cli-x86_64-pc-windows-msvc.zip",
+            "hash": "562dff6565d4612096ee3ff4d34e7726ac243ec4344d7b0da0f434c11bdbe1e1"
         },
         "arm64": {
-            "url": "https://github.com/vericto/vericto-cli/releases/download/v1.12.1/vericto-cli-aarch64-pc-windows-msvc.zip",
-            "hash": "cb559d805dbd5f663808d530878fdf2bb7ef8425b69473d81c63fd47471dfdd4"
+            "url": "https://github.com/vericto/vericto-cli/releases/download/v1.13.0/vericto-cli-aarch64-pc-windows-msvc.zip",
+            "hash": "06e3ec9bad927ecec92dd9dff8fd8033ea3172be6bccf63f18c3e79653fa7215"
         }
     },
     "bin": "vericto.exe",
