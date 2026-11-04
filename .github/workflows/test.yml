@@ -79,8 +79,9 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $version = (Get-Content bucket/vericto.json -Raw | ConvertFrom-Json).version
-          scoop bucket add vericto-ci $PWD
-          scoop install vericto-ci/vericto
+          # Install straight from this checkout's manifest: `scoop bucket add`
+          # rejects a local Windows path as a Git URL.
+          scoop install ./bucket/vericto.json
           if ($LASTEXITCODE -ne 0) { throw "scoop install failed ($LASTEXITCODE)" }
           $got = vericto --version
           if ($got -ne "vericto $version") { throw "installed '$got', expected 'vericto $version'" }
