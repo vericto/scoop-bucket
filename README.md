@@ -46,5 +46,11 @@ security issues as described in its
 ## License
 
 This bucket is licensed under the Apache License 2.0 ([LICENSE](LICENSE)). The
-Vericto CLI it installs is licensed under the Functional Source License 1.1,
-ALv2 Future License (FSL-1.1-ALv2); see its repository.
+Vericto CLI it installs is open source under the GNU Affero General Public
+License, version 3 only (AGPL-3.0-only) from 2.0.0, and free to use in
+production, including commercially; a commercial license from Vericto S.A.S.
+(legal@vericto.com) is available for closed or embedded use. CLI 1.10.0 to
+1.13.3 remain under the Functional Source License 1.1, ALv2 Future License
+(FSL-1.1-ALv2). The manifest's `license` field gives the license of the
+version it pins. See the CLI's
+[LICENSING.md](https://github.com/vericto/vericto-cli/blob/main/LICENSING.md).

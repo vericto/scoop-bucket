@@ -72,10 +72,17 @@ or email [security@vericto.com](mailto:security@vericto.com).
 ## License
 
 The files in this repository are under the [Apache License 2.0](LICENSE). The
-Vericto CLI that the manifest installs is a separate program, licensed under
-the [Functional Source License, Version 1.1, ALv2 Future
-License](https://github.com/vericto/vericto-cli/blob/main/LICENSE)
-(`FSL-1.1-ALv2`); see the CLI's
+Vericto CLI that the manifest installs is a separate program, licensed by
+version. From 2.0.0 it is open source under the [GNU Affero General Public
+License, version 3 only](https://github.com/vericto/vericto-cli/blob/main/LICENSE)
+(`AGPL-3.0-only`), and free to use in production, including commercially; a
+commercial license from Vericto S.A.S.
+([legal@vericto.com](mailto:legal@vericto.com)) is available for closed or
+embedded use. CLI 1.10.0 to 1.13.3 remain under the Functional Source License,
+Version 1.1, ALv2 Future License (`FSL-1.1-ALv2`). The manifest's `license`
+field says which: vericto-cli's release generates it, so it reads
+`FSL-1.1-ALv2` in the 1.13.3 manifest and `AGPL-3.0-only` from the 2.0.0
+manifest on. See the CLI's
 [LICENSING.md](https://github.com/vericto/vericto-cli/blob/main/LICENSING.md).
 The licenses grant no right to the Vericto name or logo; see
 [TRADEMARKS.md](TRADEMARKS.md).
